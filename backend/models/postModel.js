@@ -6,8 +6,8 @@ const bcrypt = require("bcrypt");
 
 const PostSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now },
-  text: {
-    type: String,
+  hashtags: {
+    type: [String],
   },
   audio: {
     type: String,
