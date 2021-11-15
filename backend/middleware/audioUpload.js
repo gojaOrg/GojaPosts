@@ -20,8 +20,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Multer proccesses the image and sends it to S3
-
+// Multer proccesses the audio file and sends it to S3
 const upload = multer({
   // fileFilter,
   storage: multerS3({

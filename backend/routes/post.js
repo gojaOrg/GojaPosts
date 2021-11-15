@@ -42,7 +42,8 @@ router.post(
     res.json(fileLocations);
   }
 );
-router.post("/add-audio", upload.single("file"), async function (req, res) {
+router.post("/upload-audio", upload.single("file"), async function (req, res) {
+  // Respond with URL of file at AWS S3
   res.json(req.file.location);
 });
 router.post("/", async (req, res, next) => {
