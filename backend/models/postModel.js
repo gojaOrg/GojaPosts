@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const jwt = require("jsonwebtoken");
 const config = require("config");
-const bcrypt = require("bcrypt");
+//const bcrypt = require("bcrypt");
 
 const PostSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now },
@@ -44,6 +44,11 @@ const PostSchema = new mongoose.Schema({
   },
   likes: {
     type: Number,
+    default: 0,
+  },
+  likedByUsers: {
+    type: [{ userName: String, userId: String }],
+    default: [],
   },
 });
 

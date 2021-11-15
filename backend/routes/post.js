@@ -52,6 +52,7 @@ router.post(
   }
 );
 router.post("/", async (req, res, next) => {
+  console.log("POSTS END POINT");
   console.log(req.body);
   const form = req.body;
 
@@ -60,12 +61,12 @@ router.post("/", async (req, res, next) => {
       hashtags: form.hashtags,
       audio: form.audio,
       inReplyToID: form.replyPostId,
-      inReplpyToUser: form.replyUserId,
+      inReplyToUser: form.replyUserId,
       "user.id": form.user.id,
       "user.profileAudio": form.user.profileAudio,
       "user.profilePicture": form.user.profilePicture,
       "user.userName": form.user.userName,
-      "user.bio": form.user.bio,
+      "user.about": form.user.about,
       "user.email": form.user.email,
     });
     await post.save();
@@ -74,6 +75,46 @@ router.post("/", async (req, res, next) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/like", async (req, res) => {
+  console.log(req.body);
+  const likeObject = req.body;
+  const postId = likeObject.id;
+  const user = likeObject.user;
+  console.log("CALLING LIKE");
+  const filter = { _id: postId, "likedByUsers.userId": { $ne: user.userId } };
+  const update = {
+    $inc: { likes: 1 },
+    $push: { likedByUsers: user },
+  };
+  const doc = await Post.findOneAndUpdate(filter, update, { new: true });
+  console.log(doc);
+  if (doc === null) {
+    res.status(200).json({ message: "User has already liked the post" });
+  } else {
+    res.status(200).json({ updatedPost: doc });
+  }
+});
+
+router.post("/unlike", async (req, res) => {
+  console.log(req.body);
+  const unlikeObject = req.body;
+  const postId = unlikeObject.id;
+  const user = unlikeObject.user;
+  console.log("calling UNLIKE");
+  const filter = { _id: postId, "likedByUsers.userId": user.userId };
+  const update = {
+    $inc: { likes: -1 },
+    $pull: { likedByUsers: { userId: user.userId } },
+  };
+  const doc = await Post.findOneAndUpdate(filter, update, { new: true });
+  console.log(doc);
+  if (doc === null) {
+    res.status(200).json({ message: "User has not liked post" });
+  } else {
+    res.status(200).json({ postObject: doc });
   }
 });
 module.exports = router;

@@ -8,7 +8,7 @@ console.log("-----");
 
 mongoose.set("useCreateIndex", true);
 mongoose.connect(
-  `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASS}@cluster0.cqnl4.mongodb.net/${dbname}?retryWrites=true&w=majority`,
+  `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASS}@cluster0.zvtmp.mongodb.net/${dbname}?retryWrites=true&w=majority`,
   //lägg till env-variabel till den övre
   // `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASS}@meco-ju6ws.mongodb.net/${dbName}?retryWrites=true&w=majority`,
   {
