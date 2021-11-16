@@ -1,13 +1,14 @@
 const aws = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
-const s3 = new aws.S3();
 
 aws.config.update({
   secretAccessKey: process.env.S3_ACCESS_SECRET,
   accessKeyId: process.env.S3_ACCESS_KEY,
   region: "eu-north-1",
 });
+
+const s3 = new aws.S3();
 
 // Validating the file type
 
@@ -19,10 +20,9 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Multer proccesses the image and sends it to S3
-
+// Multer proccesses the audio file and sends it to S3
 const upload = multer({
-  fileFilter,
+  // fileFilter,
   storage: multerS3({
     acl: "public-read",
     s3,

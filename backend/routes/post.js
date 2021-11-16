@@ -4,7 +4,7 @@ const { body, validationResult } = require("express-validator");
 const auth = require("../middleware/auth");
 const Post = require("../models/postModel");
 const mongoose = require("mongoose");
-const upload = require("../middleware/imageUpload");
+const upload = require("../middleware/audioUpload");
 const ObjectId = mongoose.Types.ObjectId;
 var axios = require("axios");
 
@@ -42,15 +42,10 @@ router.post(
     res.json(fileLocations);
   }
 );
-router.post(
-  "/add-audio",
-  upload.single("audio"),
-  auth,
-  async function (req, res) {
-    var id = req.user._id;
-    res.json(req.file.location);
-  }
-);
+router.post("/upload-audio", upload.single("file"), async function (req, res) {
+  // Respond with URL of file at AWS S3
+  res.json(req.file.location);
+});
 router.post("/", async (req, res, next) => {
   console.log(req.body);
   const form = req.body;
