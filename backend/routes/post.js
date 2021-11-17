@@ -90,7 +90,7 @@ router.post("/like", async (req, res) => {
   const doc = await Post.findOneAndUpdate(filter, update, { new: true });
   if (doc === null) {
     res
-      .status(200)
+      .status(409)
       .json({ message: "User has already liked the post or wrong post ID" });
   } else {
     res.status(200).json({ updatedPost: doc });
@@ -109,7 +109,7 @@ router.post("/unlike", async (req, res) => {
   const doc = await Post.findOneAndUpdate(filter, update, { new: true });
   if (doc === null) {
     res
-      .status(200)
+      .status(409)
       .json({ message: "User has not liked post or wrong post ID" });
   } else {
     res.status(200).json({ postObject: doc });
