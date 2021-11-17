@@ -79,18 +79,15 @@ router.post("/", async (req, res, next) => {
 });
 
 router.post("/like", async (req, res) => {
-  console.log(req.body);
   const likeObject = req.body;
   const postId = likeObject.id;
   const user = likeObject.user;
-  console.log("CALLING LIKE");
   const filter = { _id: postId, "likedByUsers.userId": { $ne: user.userId } };
   const update = {
     $inc: { likes: 1 },
     $push: { likedByUsers: user },
   };
   const doc = await Post.findOneAndUpdate(filter, update, { new: true });
-  console.log(doc);
   if (doc === null) {
     res
       .status(200)
@@ -101,18 +98,15 @@ router.post("/like", async (req, res) => {
 });
 
 router.post("/unlike", async (req, res) => {
-  console.log(req.body);
   const unlikeObject = req.body;
   const postId = unlikeObject.id;
   const user = unlikeObject.user;
-  console.log("calling UNLIKE");
   const filter = { _id: postId, "likedByUsers.userId": user.userId };
   const update = {
     $inc: { likes: -1 },
     $pull: { likedByUsers: { userId: user.userId } },
   };
   const doc = await Post.findOneAndUpdate(filter, update, { new: true });
-  console.log(doc);
   if (doc === null) {
     res
       .status(200)
