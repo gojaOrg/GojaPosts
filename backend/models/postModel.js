@@ -8,20 +8,20 @@ const PostSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now },
   hashtags: {
     type: [String],
+    default: [],
   },
   audio: {
     type: String,
     required: true,
   },
-  inReplyToID: {
-    type: mongoose.Schema.Types.ObjectId,
-  },
   inReplyToUser: {
     type: mongoose.Schema.Types.ObjectId,
+    default: null,
   },
   user: {
     id: {
       type: String,
+      required: true,
     },
     profileAudio: {
       type: String,
@@ -29,13 +29,11 @@ const PostSchema = new mongoose.Schema({
     },
     profilePicture: {
       type: String,
+      required: true,
     },
     userName: {
       type: String,
       required: true,
-    },
-    about: {
-      type: String,
     },
     email: {
       type: String,
