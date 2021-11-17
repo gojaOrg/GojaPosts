@@ -65,13 +65,11 @@ router.post("/", async (req, res, next) => {
     const post = new Post({
       hashtags: form.hashtags,
       audio: form.audio,
-      inReplyToID: form.replyPostId,
       inReplyToUser: form.replyUserId,
       "user.id": form.user.id,
       "user.profileAudio": form.user.profileAudio,
       "user.profilePicture": form.user.profilePicture,
       "user.userName": form.user.userName,
-      "user.about": form.user.about,
       "user.email": form.user.email,
     });
     await post.save();
