@@ -34,7 +34,8 @@ router.get("/more/:minDate", async (req, res) => {
   var minCreatedDateFromLastResult = req.params.minDate;
   try {
     var posts = await Post.find({
-      created_date: { $lt: minCreatedDateFromLastResult },
+      created_at: { $lt: minCreatedDateFromLastResult },
+      inReplyToPostId: { $eq: null },
     })
       .limit(10)
       .sort({ created_at: -1 });
