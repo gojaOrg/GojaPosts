@@ -14,7 +14,7 @@ const PostSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  inReplyToUser: {
+  inReplyToPostId: {
     type: mongoose.Schema.Types.ObjectId,
     default: null,
   },
