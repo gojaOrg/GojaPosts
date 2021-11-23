@@ -20,8 +20,36 @@ router.get("/my-posts/:id", async (req, res) => {
 
 router.get("/all", async (req, res) => {
   try {
-    var posts = await Post.find();
+    var posts = await Post.find({ inReplyToPostId: { $eq: null } })
+      .limit(10)
+      .sort({ created_at: -1 });
     res.json(posts);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/more/:minDate", async (req, res) => {
+  var minCreatedDateFromLastResult = req.params.minDate;
+  try {
+    var posts = await Post.find({
+      created_at: { $lt: minCreatedDateFromLastResult },
+      inReplyToPostId: { $eq: null },
+    })
+      .limit(10)
+      .sort({ created_at: -1 });
+    res.json(posts);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/replies/:id", async (req, res) => {
+  try {
+    var replies = await Post.find({ inReplyToPostId: req.params.id });
+    res.json(replies);
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ message: "Server error" });
