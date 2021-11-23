@@ -14,6 +14,10 @@ const PostSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  audioFileType: {
+    type: String,
+    required: true,
+  },
   inReplyToPostId: {
     type: mongoose.Schema.Types.ObjectId,
     default: null,

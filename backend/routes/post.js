@@ -85,14 +85,13 @@ router.post("/upload-audio", upload.single("file"), async function (req, res) {
   res.json(req.file.location);
 });
 router.post("/", async (req, res, next) => {
-  console.log("POSTS END POINT");
-  console.log(req.body);
   const form = req.body;
 
   try {
     const post = new Post({
       hashtags: form.hashtags,
       audio: form.audio,
+      audioFileType: form.audioFileType,
       inReplyToUser: form.replyUserId,
       "user.id": form.user.id,
       "user.profileAudio": form.user.profileAudio,
