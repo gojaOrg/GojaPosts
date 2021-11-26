@@ -80,10 +80,12 @@ router.post(
     res.json(fileLocations);
   }
 );
+
 router.post("/upload-audio", upload.single("file"), async function (req, res) {
   // Respond with URL of file at AWS S3
   res.json(req.file.location);
 });
+
 router.post("/", async (req, res, next) => {
   const form = req.body;
 
@@ -92,7 +94,7 @@ router.post("/", async (req, res, next) => {
       hashtags: form.hashtags,
       audio: form.audio,
       audioFileType: form.audioFileType,
-      inReplyToUser: form.replyUserId,
+      inReplyToPostId: form.inReplyToPostId,
       "user.id": form.user.id,
       "user.profileAudio": form.user.profileAudio,
       "user.profilePicture": form.user.profilePicture,
@@ -100,6 +102,15 @@ router.post("/", async (req, res, next) => {
       "user.email": form.user.email,
     });
     await post.save();
+
+    // Add comment count to the parent post if this post is commnet
+    if (form.inReplyToPostId) {
+      await Post.findOneAndUpdate(
+        { _id: form.inReplyToPostId },
+        { $inc: { commentCount: 1 } }
+      );
+    }
+
     res.status(200).json(post);
     console.log("Post posted to database");
   } catch (err) {
