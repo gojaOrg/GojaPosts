@@ -24,7 +24,7 @@ const PostSchema = new mongoose.Schema({
   },
   user: {
     id: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
     profileAudio: {
