@@ -81,6 +81,23 @@ router.post(
   }
 );
 
+router.post("/my-feed", async (req, res, next) => {
+  const form = req.body;
+  console.log(form);
+
+  try {
+    var posts = await Post.find({
+      "user._id": { $in: form.following.map((x) => ObjectId(x.userId)) },
+    });
+
+    res.status(200).json(posts);
+    console.log("Post posted to database");
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 router.post("/upload-audio", upload.single("file"), async function (req, res) {
   // Respond with URL of file at AWS S3
   res.json(req.file.location);
