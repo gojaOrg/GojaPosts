@@ -30,21 +30,6 @@ router.get("/all", async (req, res) => {
   }
 });
 
-router.get("/more/:minDate", async (req, res) => {
-  var minCreatedDateFromLastResult = req.params.minDate;
-  try {
-    var posts = await Post.find({
-      created_at: { $lt: minCreatedDateFromLastResult },
-      inReplyToPostId: { $eq: null },
-    })
-      .limit(10)
-      .sort({ created_at: -1 });
-    res.json(posts);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: "Server error" });
-  }
-});
 
 router.get("/replies/:id", async (req, res) => {
   try {
@@ -84,14 +69,33 @@ router.post(
 router.post("/my-feed", async (req, res, next) => {
   const form = req.body;
   console.log(form);
-
   try {
     var posts = await Post.find({
       "user._id": { $in: form.following.map((x) => ObjectId(x.userId)) },
-    });
+    })
+      .limit(10)
+      .sort({ created_at: -1 });
 
     res.status(200).json(posts);
     console.log("Post posted to database");
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/my-feed/more", async (req, res) => {
+  const form = req.body;
+  var minCreatedDateFromLastResult = form.minDate;
+  try {
+    var posts = await Post.find({
+      "user._id": { $in: form.following.map((x) => ObjectId(x.userId)) },
+      created_at: { $lt: minCreatedDateFromLastResult },
+      inReplyToPostId: { $eq: null },
+    })
+      .limit(10)
+      .sort({ created_at: -1 });
+    res.json(posts);
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ message: "Server error" });
@@ -112,7 +116,7 @@ router.post("/", async (req, res, next) => {
       audio: form.audio,
       audioFileType: form.audioFileType,
       inReplyToPostId: form.inReplyToPostId,
-      "user.id": form.user.id,
+      "user._id": form.user.id,
       "user.profileAudio": form.user.profileAudio,
       "user.profilePicture": form.user.profilePicture,
       "user.userName": form.user.userName,
