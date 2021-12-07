@@ -8,6 +8,21 @@ const upload = require("../middleware/audioUpload");
 const ObjectId = mongoose.Types.ObjectId;
 var axios = require("axios");
 
+var emojis = {
+  5: "🥚",
+  10: "🐣",
+  tenComments: "🎉",
+  tenCommentsTenLikes: "🥳",
+  20: "💛",
+  40: "🧡",
+  100: "🐥",
+  200: "🐔",
+  400: "❤️‍🔥",
+  1000: "🔥",
+  2000: "☄️",
+  1000000: "🦄",
+};
+
 router.get("/my-posts/:id", async (req, res) => {
   try {
     var posts = await Post.find({ "user.id": req.params.id });
@@ -127,7 +142,6 @@ router.post("/", async (req, res, next) => {
         { $inc: { commentCount: 1 } }
       );
     }
-
     res.status(200).json(post);
     console.log("Post posted to database");
   } catch (err) {
@@ -151,6 +165,13 @@ router.post("/like", async (req, res) => {
       .status(409)
       .json({ message: "User has already liked the post or wrong post ID" });
   } else {
+    var likes = doc.likes;
+    var funkyStatus = emojis[likes];
+    if (funkyStatus) {
+      await Post.findByIdAndUpdate(postId, {
+        funkyStatus: funkyStatus,
+      });
+    }
     res.status(200).json({ updatedPost: doc });
   }
 });

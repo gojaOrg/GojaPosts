@@ -22,6 +22,9 @@ const PostSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     default: null,
   },
+  funkyStatus: {
+    type: String,
+  },
   user: {
     id: {
       type: mongoose.Schema.Types.ObjectId,
