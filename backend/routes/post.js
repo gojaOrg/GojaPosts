@@ -25,7 +25,7 @@ var emojis = {
 
 router.get("/my-posts/:id", async (req, res) => {
   try {
-    var posts = await Post.find({ "user.id": req.params.id });
+    var posts = await Post.find({ "user._id": req.params.id });
     res.json(posts);
   } catch (err) {
     console.error(err.message);
@@ -44,7 +44,6 @@ router.get("/all", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 router.get("/replies/:id", async (req, res) => {
   try {
@@ -86,7 +85,12 @@ router.post("/my-feed", async (req, res, next) => {
   console.log(form);
   try {
     var posts = await Post.find({
-      "user._id": { $in: form.following.map((x) => ObjectId(x.userId)) },
+      $or: [
+        {
+          "user._id": { $in: form.following.map((x) => ObjectId(x.userId)) },
+        },
+        { "user._id": form.userId },
+      ],
     })
       .limit(10)
       .sort({ created_at: -1 });
@@ -104,9 +108,18 @@ router.post("/my-feed/more", async (req, res) => {
   var minCreatedDateFromLastResult = form.minDate;
   try {
     var posts = await Post.find({
-      "user._id": { $in: form.following.map((x) => ObjectId(x.userId)) },
-      created_at: { $lt: minCreatedDateFromLastResult },
-      inReplyToPostId: { $eq: null },
+      $or: [
+        {
+          "user._id": { $in: form.following.map((x) => ObjectId(x.userId)) },
+          created_at: { $lt: minCreatedDateFromLastResult },
+          inReplyToPostId: { $eq: null },
+        },
+        {
+          "user._id": form.userId,
+          created_at: { $lt: minCreatedDateFromLastResult },
+          inReplyToPostId: { $eq: null },
+        },
+      ],
     })
       .limit(10)
       .sort({ created_at: -1 });
