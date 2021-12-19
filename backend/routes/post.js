@@ -55,18 +55,6 @@ router.get("/replies/:id", async (req, res) => {
   }
 });
 
-router.get("/:id", auth, async (req, res) => {
-  var id = req.params.id;
-  var jobs = await Products.find(
-    { user: id },
-    {
-      desc: 1,
-      photos: 1,
-    }
-  );
-  res.json(jobs);
-});
-
 router.post(
   "/add-jobpictures",
   upload.array("photos", 12),
@@ -94,7 +82,6 @@ router.post("/my-feed", async (req, res, next) => {
     })
       .limit(10)
       .sort({ created_at: -1 });
-
     res.status(200).json(posts);
     console.log("Post posted to database");
   } catch (err) {
