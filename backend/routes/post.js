@@ -33,6 +33,16 @@ router.get("/my-posts/:id", async (req, res) => {
   }
 });
 
+router.get("/by-id/:id", async (req, res) => {
+  try {
+    var post = await Post.findById(req.params.id);
+    res.json(post);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 router.get("/all", async (req, res) => {
   try {
     var posts = await Post.find({ inReplyToPostId: { $eq: null } })
