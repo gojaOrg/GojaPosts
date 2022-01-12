@@ -70,7 +70,6 @@ router.post(
   upload.array("photos", 12),
   function (req, res) {
     var fileLocations = [];
-    console.log(req.files);
     for (i = 0; i < req.files.length; i++) {
       fileLocations.push(req.files[i].location);
     }
@@ -80,7 +79,6 @@ router.post(
 
 router.post("/my-feed", async (req, res, next) => {
   const form = req.body;
-  console.log(form);
   try {
     var posts = await Post.find({
       $or: [
@@ -93,7 +91,6 @@ router.post("/my-feed", async (req, res, next) => {
       .limit(10)
       .sort({ created_at: -1 });
     res.status(200).json(posts);
-    console.log("Post posted to database");
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ message: "Server error" });
@@ -157,7 +154,6 @@ router.post("/", async (req, res, next) => {
       );
     }
     res.status(200).json(post);
-    console.log("Post posted to database");
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ message: "Server error" });
