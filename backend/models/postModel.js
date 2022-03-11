@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const jwt = require("jsonwebtoken");
 const config = require("config");
-//const bcrypt = require("bcrypt");
 
 const PostSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now },

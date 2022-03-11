@@ -3,6 +3,7 @@ var router = express.Router();
 const { body, validationResult } = require("express-validator");
 const auth = require("../middleware/auth");
 const Post = require("../models/postModel");
+const Like = require("../models/likesModel");
 const mongoose = require("mongoose");
 const upload = require("../middleware/audioUpload");
 const ObjectId = mongoose.Types.ObjectId;
@@ -25,7 +26,9 @@ var emojis = {
 
 router.get("/my-posts/:id", async (req, res) => {
   try {
-    var posts = await Post.find({ "user._id": req.params.id });
+    var posts = await Post.find({ "user._id": req.params.id }).sort({
+      _id: -1,
+    });
     res.json(posts);
   } catch (err) {
     console.error(err.message);
@@ -84,12 +87,26 @@ router.post("/my-feed", async (req, res, next) => {
       $or: [
         {
           "user._id": { $in: form.following.map((x) => ObjectId(x.userId)) },
+          inReplyToPostId: { $eq: null },
         },
-        { "user._id": form.userId },
+        { "user._id": form.userId, inReplyToPostId: { $eq: null } },
       ],
     })
       .limit(10)
-      .sort({ created_at: -1 });
+      .sort({ created_at: -1 })
+      .lean();
+
+    const hasLiked = await Like.find({ userId: form.userId });
+
+    posts.forEach((post) => {
+      const found = hasLiked.some((el) => el.postId === String(post._id));
+      if (found) {
+        post.hasLiked = true;
+      } else {
+        post.hasLiked = false;
+      }
+    });
+
     res.status(200).json(posts);
   } catch (err) {
     console.error(err.message);
@@ -169,20 +186,32 @@ router.post("/like", async (req, res) => {
     $inc: { likes: 1 },
     $push: { likedByUsers: user },
   };
-  const doc = await Post.findOneAndUpdate(filter, update, { new: true });
-  if (doc === null) {
+  const hasLiked = await Like.find({ postId: postId, userId: user.id });
+  console.log(hasLiked);
+  if (hasLiked.length > 0) {
+    console.log("already liked");
     res
       .status(409)
       .json({ message: "User has already liked the post or wrong post ID" });
   } else {
-    var likes = doc.likes;
+    const likeObject = new Like({
+      postId: postId,
+      userId: user.id,
+      userName: user.userName,
+    });
+    await likeObject.save();
+    var postAfterLike = await Post.findOneAndUpdate(
+      { _id: postId },
+      { $inc: { likes: 1 } }
+    );
+    var likes = postAfterLike.likes;
     var funkyStatus = emojis[likes];
     if (funkyStatus) {
       await Post.findByIdAndUpdate(postId, {
         funkyStatus: funkyStatus,
       });
     }
-    res.status(200).json({ updatedPost: doc });
+    res.status(200).json(postAfterLike);
   }
 });
 
@@ -190,18 +219,23 @@ router.post("/unlike", async (req, res) => {
   const unlikeObject = req.body;
   const postId = unlikeObject.id;
   const user = unlikeObject.user;
-  const filter = { _id: postId, "likedByUsers.userId": user.userId };
-  const update = {
-    $inc: { likes: -1 },
-    $pull: { likedByUsers: { userId: user.userId } },
-  };
-  const doc = await Post.findOneAndUpdate(filter, update, { new: true });
-  if (doc === null) {
+
+  const hasLiked = await Like.find({ postId: postId, userId: user.id });
+
+  if (hasLiked.length == 0) {
     res
       .status(409)
       .json({ message: "User has not liked post or wrong post ID" });
   } else {
-    res.status(200).json({ postObject: doc });
+    await Like.deleteOne({
+      postId: postId,
+      userId: user.id,
+    });
+    var postAfterLike = await Post.findOneAndUpdate(
+      { _id: postId },
+      { $inc: { likes: -1 } }
+    );
+    res.status(200).json(postAfterLike);
   }
 });
 module.exports = router;
