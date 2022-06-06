@@ -9,6 +9,10 @@ const PostSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  caption: {
+    type: String,
+    default: "",
+  },
   audio: {
     type: String,
     required: true,

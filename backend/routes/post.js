@@ -68,6 +68,42 @@ router.get("/replies/:id", async (req, res) => {
   }
 });
 
+router.get("/hashtag", async (req, res) => {
+  const searchString = req.query.search;
+  try {
+    var replies = await Post.find({ hashtags: searchString });
+    console.log(replies);
+    res.json(replies);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+function escapeRegex(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+
+router.get("/search-hashtag", async (req, res) => {
+  const searchString = req.query.search;
+  const regex = new RegExp(escapeRegex(searchString), "gi");
+  try {
+    await Post.find({ hashtags: regex }, (error, foundUsers) => {
+      if (error) {
+        console.log(error);
+        res
+          .status(500)
+          .json({ message: "Something went wrong searching mongoDB" });
+      } else {
+        res.status(200).json(foundUsers);
+      }
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: "You fucked up the server" });
+  }
+});
+
 router.post(
   "/add-jobpictures",
   upload.array("photos", 12),
@@ -148,10 +184,10 @@ router.post("/upload-audio", upload.single("file"), async function (req, res) {
 
 router.post("/", async (req, res, next) => {
   const form = req.body;
-
   try {
     const post = new Post({
       hashtags: form.hashtags,
+      caption: form.caption,
       audio: form.audio,
       audioFileType: form.audioFileType,
       inReplyToPostId: form.inReplyToPostId,
